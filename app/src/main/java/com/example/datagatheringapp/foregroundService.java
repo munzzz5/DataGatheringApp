@@ -35,9 +35,9 @@ public class foregroundService extends Service {
         startForeground(1,notification);
 
 
-        long mills=timeSettingForAlarm(13,25,10);
+        long mills=timeSettingForAlarm(15,0,0);
         AlarmManager alarmManager=(AlarmManager) getBaseContext().getSystemService(ALARM_SERVICE);
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,mills+1000,1000,pi);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,mills+1000,3*60*60*1000,pi);
         return super.onStartCommand(intent, flags, startId);
     }
     public long timeSettingForAlarm(int hour,int minute,int second)
@@ -50,6 +50,10 @@ public class foregroundService extends Service {
         Date d=calendar.getTime();
         long millis=d.getTime();
         long currentMillis=System.currentTimeMillis();
+        if(currentMillis>millis)
+        {
+            millis=millis+24*60*60*1000;
+        }
         Log.d("TIME CURRENT MILLIS",Long.toString(currentMillis));
         Log.d("TIME SET TIME MILLIS",Long.toString(millis));
 

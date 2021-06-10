@@ -15,6 +15,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.Calendar;
+import java.util.Date;
 
 public class SensorService extends Service implements SensorEventListener {
     private SensorManager sensorManager;
@@ -49,15 +51,16 @@ public class SensorService extends Service implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
+
         if (sensorEvent.sensor.getType()==Sensor.TYPE_ACCELEROMETER) {
-                StringBuilder sb=new StringBuilder();
+            StringBuilder sb=new StringBuilder();
 
                 new Thread() {
                     @Override
                     public void run() {
 
                         int i=0;
-                        while(i<8)
+                        while(i<15)
 
                         {
 
@@ -86,7 +89,16 @@ public class SensorService extends Service implements SensorEventListener {
 
 
         if(sensorEvent.sensor.getType()==Sensor.TYPE_MOTION_DETECT){
-            Log.d("STEPS",String.valueOf(sensorEvent.values[0]));
+            StringBuilder sb=new StringBuilder();
+            new Thread(){
+                @Override
+                public void run() {
+                    sb.append("\n------------------MOTION DETECTOR-------------------------\n"+sensorEvent.values[0]);
+                    Log.d("STEPS",String.valueOf(sensorEvent.values[0]));
+                }
+
+            }.start();
+
             stopSelf();
         }
 
@@ -95,8 +107,9 @@ public class SensorService extends Service implements SensorEventListener {
     private void saveData(String accelData) {
         try {
             FileOutputStream fout=openFileOutput("SensorDataKomplete.txt",MODE_APPEND);
+            Date d= Calendar.getInstance().getTime();
             OutputStreamWriter osw=new OutputStreamWriter(fout);
-            osw.write(accelData+"\n------------------------------\n");
+            osw.write(d.toString()+"\n------------------------------\n"+accelData);
             osw.close();
 
         } catch (FileNotFoundException e) {

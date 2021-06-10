@@ -15,6 +15,9 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
+import java.util.Calendar;
+import java.util.Date;
+
 public class foregroundService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -31,11 +34,27 @@ public class foregroundService extends Service {
 
         startForeground(1,notification);
 
+
+        long mills=timeSettingForAlarm(13,25,10);
         AlarmManager alarmManager=(AlarmManager) getBaseContext().getSystemService(ALARM_SERVICE);
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,System.currentTimeMillis()+1000,10000,pi);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,mills+1000,1000,pi);
         return super.onStartCommand(intent, flags, startId);
     }
+    public long timeSettingForAlarm(int hour,int minute,int second)
+    {
+        Calendar calendar=Calendar.getInstance();
 
+        calendar.set(Calendar.HOUR_OF_DAY,hour);
+        calendar.set(Calendar.MINUTE,minute);
+        calendar.set(Calendar.SECOND,second);
+        Date d=calendar.getTime();
+        long millis=d.getTime();
+        long currentMillis=System.currentTimeMillis();
+        Log.d("TIME CURRENT MILLIS",Long.toString(currentMillis));
+        Log.d("TIME SET TIME MILLIS",Long.toString(millis));
+
+        return millis;
+    }
     @Override
     public void onCreate() {
         Log.d("OnCreate:","Reached");

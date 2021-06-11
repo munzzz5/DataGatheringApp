@@ -7,6 +7,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -20,12 +21,18 @@ import java.util.Date;
 
 public class SensorService extends Service implements SensorEventListener {
     private SensorManager sensorManager;
+    long startMillis;
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d("SENSOR ON COMMAND","REACHED");
         sensorManager=(SensorManager)getSystemService(SENSOR_SERVICE);
-        sensorManager.registerListener(this,sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),SensorManager.SENSOR_DELAY_NORMAL);
-        sensorManager.registerListener(this,sensorManager.getDefaultSensor(Sensor.TYPE_MOTION_DETECT),SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
+        startMillis=System.currentTimeMillis();
+
+
+
+
+
         //stopSelf();
         return super.onStartCommand(intent, flags, startId);
     }
@@ -40,6 +47,7 @@ public class SensorService extends Service implements SensorEventListener {
     public void onDestroy() {
         Log.d("SENSOR ON DESTROY","REACHED");
         sensorManager.unregisterListener(this);
+
         super.onDestroy();
     }
 
@@ -54,55 +62,43 @@ public class SensorService extends Service implements SensorEventListener {
 
         if (sensorEvent.sensor.getType()==Sensor.TYPE_ACCELEROMETER) {
             StringBuilder sb=new StringBuilder();
+            Log.d("SENSOR VALUES", getAccelerometer(sensorEvent));
+            sb.append(getAccelerometer(sensorEvent));
+            sb.append("\n-----------------------------------\n");
+            try {
+                Thread.sleep(1000);
 
-                new Thread() {
-                    @Override
-                    public void run() {
-
-                        int i=0;
-                        while(i<15)
-
-                        {
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            Log.d("OUTPUT FOR STORAGE",sb.toString());
+            saveData(sb.toString());
 
 
-                            Log.d("SENSOR VALUES", getAccelerometer(sensorEvent));
-                            sb.append(getAccelerometer(sensorEvent));
-                            sb.append("\n-----------------------------------\n");
-                            try {
-                                Thread.sleep(1000);
-
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                            i++;
-                        }
-                    }
-
-                }.start();
-
-                Log.d("OUTPUT FOR STORAGE",sb.toString());
-                saveData(sb.toString());
-                stopSelf();
         }
 
 
 
 
-        if(sensorEvent.sensor.getType()==Sensor.TYPE_MOTION_DETECT){
+        else if(sensorEvent.sensor.getType()==Sensor.TYPE_MOTION_DETECT){
             StringBuilder sb=new StringBuilder();
-            new Thread(){
-                @Override
-                public void run() {
+
                     sb.append("\n------------------MOTION DETECTOR-------------------------\n"+sensorEvent.values[0]);
                     Log.d("STEPS",String.valueOf(sensorEvent.values[0]));
                 }
 
-            }.start();
-
+        if(System.currentTimeMillis()-startMillis>5000)
+        {
+            sensorManager.unregisterListener(this);
             stopSelf();
         }
 
-    }
+
+
+        }
+
+
+
 
     private void saveData(String accelData) {
         try {

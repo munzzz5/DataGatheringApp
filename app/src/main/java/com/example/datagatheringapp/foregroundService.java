@@ -21,24 +21,28 @@ import java.util.Date;
 public class foregroundService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d("OnStartCommand:","Reached");
-        Intent intent1=new Intent(this,SensorService.class);
-        Intent intentNotif=new Intent(this,MainActivity.class);
-        PendingIntent piNotif=PendingIntent.getActivity(this,0,intentNotif,0);
-        PendingIntent pi=PendingIntent.getService(this,0,intent1,0);
-        Notification notification = new NotificationCompat.Builder(this, "MY SERVICE APP")
-                .setContentTitle("Foreground Service")
-                .setContentText("MY TEXT NOTIF")
-                .setContentIntent(piNotif)
-                .build();
 
-        startForeground(1,notification);
+            Log.d("OnStartCommand:", "Reached");
+            Intent intent1 = new Intent(this, SensorService.class);
+            Intent intentNotif = new Intent(this, MainActivity.class);
+            PendingIntent piNotif = PendingIntent.getActivity(this, 0, intentNotif, 0);
+            PendingIntent pi = PendingIntent.getService(this, 0, intent1, 0);
+            Notification notification = new NotificationCompat.Builder(this, "MY SERVICE APP")
+                    .setContentTitle("Foreground Service")
+                    .setContentText("MY TEXT NOTIF")
+                    .setContentIntent(piNotif)
+                    .build();
+
+            startForeground(1, notification);
 
 
-        long mills=timeSettingForAlarm(15,0,0);
-        AlarmManager alarmManager=(AlarmManager) getBaseContext().getSystemService(ALARM_SERVICE);
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,mills+1000,3*60*60*1000,pi);
-        return super.onStartCommand(intent, flags, startId);
+            long mills = timeSettingForAlarm(22, 32, 0);
+            AlarmManager alarmManager = (AlarmManager) getBaseContext().getSystemService(ALARM_SERVICE);
+            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 1000, 1000, pi);
+            Log.d("OnStartCommand:", "Reached22222");
+        
+        return START_STICKY;
+
     }
     public long timeSettingForAlarm(int hour,int minute,int second)
     {
